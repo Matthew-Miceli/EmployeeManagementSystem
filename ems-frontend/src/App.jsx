@@ -1,11 +1,11 @@
 import "./App.css";
-import HeaderComponent from "./components/HeaderComponent";
 import ListEmployeeComponent from "./components/ListEmployeeComponent";
+import HeaderComponent from "./components/HeaderComponent";
 
 function App() {
   return (
     <>
-      <HeaderComponent className="h-50" />
+      <HeaderComponent/>
       <ListEmployeeComponent />
     </>
   );

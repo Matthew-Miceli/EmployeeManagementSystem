@@ -23,6 +23,7 @@ public class EmployeeController {
     //Build add Employee REST API
     @PostMapping
     public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto) {
+        System.out.println("Received Payload: " + employeeDto);
         EmployeeDto savedEmployee = employeeService.createEmployee(employeeDto);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
