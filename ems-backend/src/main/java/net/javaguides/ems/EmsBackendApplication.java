@@ -11,20 +11,18 @@ public class EmsBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(EmsBackendApplication.class, args);
+
+
 	}
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				//Allowing requests from all origins
-				registry.addMapping("/**").allowedOrigins("*");
-
-				//Allowing from just one origin
-				//registry.addMapping("/**").allowedOrigins("http://localhost:3000");
-			}
-		};
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**")
+				.allowedOrigins("http://localhost:3000") // Specify allowed origins
+				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+				.allowedHeaders("Content-Type", "Authorization")
+				.allowCredentials(true) //If needed
+				.maxAge(3600);
 	}
+
 
 }

@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { listEmployees } from "../services/EmployeeService";
+import { useNavigate } from "react-router-dom";
 import DeleteComponent from "./DeleteComponent";
+
 const ListEmployeeComponent = () => {
   const [employees, setEmployees] = useState([]);
+
+  const navigator = useNavigate();
 
   useEffect(() => {
     listEmployees()
@@ -14,12 +18,25 @@ const ListEmployeeComponent = () => {
 
   const handleDelete = (id) => {
     // Update the employees state by filtering out the deleted employee
-    setEmployees((prevEmployees) => prevEmployees.filter((employee) => employee.id !== id));
+    setEmployees((prevEmployees) =>
+      prevEmployees.filter((employee) => employee.id !== id)
+    );
   };
+
+  function addNewEmployee() {
+    navigator("/add-employee");
+  }
 
   return (
     <div className="container">
       <h2 className="text-center">List of Employees</h2>
+      <button
+        type="button"
+        className="btn btn-primary mb-2"
+        onClick={addNewEmployee}
+      >
+        Add Employee
+      </button>
       <table className="table-striped table table-bordered">
         <thead>
           <tr>
@@ -27,7 +44,6 @@ const ListEmployeeComponent = () => {
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email Id</th>
-            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -38,7 +54,7 @@ const ListEmployeeComponent = () => {
               <td>{employee.lastName}</td>
               <td>{employee.email}</td>
               <td>
-                <DeleteComponent id={employee.id} onDelete={handleDelete}/>
+                <DeleteComponent id={employee.id} onDelete={handleDelete} />
               </td>
             </tr>
           ))}

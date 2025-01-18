@@ -2,16 +2,16 @@ import PropTypes from "prop-types";
 import { deleteEmployee } from "../services/EmployeeService";
 
 const DeleteButton = ({ id, onDelete }) => {
-    const handleDelete = async () => {
-        onDelete(id);
-        deleteEmployee(id);
-    };
+  const handleDelete = async () => {
+    onDelete(id);
+    deleteEmployee(id);
+  };
 
-    return (
-        <button onClick={handleDelete} className="delete-button">
-            Delete
-        </button>
-    );
+  return (
+    <button onClick={handleDelete} className="btn btn-danger">
+      Delete
+    </button>
+  );
 };
 
 DeleteButton.propTypes = {

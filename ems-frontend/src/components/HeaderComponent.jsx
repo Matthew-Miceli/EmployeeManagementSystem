@@ -1,7 +1,13 @@
 const HeaderComponent = () => {
   return (
-    <div className="h-100 w-100 bg-black text-white text-center">
-      Employee Management System
+    <div>
+      <header>
+        <nav className="navbar navbar-dark bg-dark text-white">
+          <a className="navbar-brand" href="http://localhost:3000">
+            Employee Management System
+          </a>
+        </nav>
+      </header>
     </div>
   );
 };
