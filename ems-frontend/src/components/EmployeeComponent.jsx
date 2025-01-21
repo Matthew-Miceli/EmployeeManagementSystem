@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { createEmployee } from "../services/EmployeeService";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { createEmployee, getEmployee, updateEmployee } from "../services/EmployeeService";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EmployeeComponent = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+
+  const { id } = useParams();
 
   const [errors, setErrors] = useState({
     firstName: "",
@@ -15,14 +17,82 @@ const EmployeeComponent = () => {
 
   const navigator = useNavigate();
 
-  function saveEmployee(e) {
+  useEffect(() => {
+    if(id){
+      getEmployee(id).then((response) => {
+        setFirstName(response.data.firstName)
+        setLastName(response.data.lastName)
+        setEmail(response.data.email)
+
+      }).catch(error => {
+        console.log(error.message)
+      })
+    }
+
+  }, [id])
+
+  function saveOrUpdateEmployee(e) {
     e.preventDefault();
 
-    const employee = { firstName, lastName, email };
-    createEmployee(employee).then((response) => {
-      console.log(response.data);
-      navigator("/employees");
-    });
+    if (validateForm()) {
+      const employee = { firstName, lastName, email };
+
+      if(id){
+        updateEmployee(id, employee).then(response => {
+          console.log(response.data);
+          navigator("/employees")
+        }).catch(erro => {
+          console.log(error.message)
+        })
+      }else{
+        createEmployee(employee).then((response) => {
+          console.log(response.data);
+          navigator("/employees");
+        }).catch(error => {
+          console.log(error.message)
+        }
+        )
+      }
+    }
+  }
+
+  function validateForm() {
+    let valid = true;
+
+    const errorsCopy = { ...errors };
+
+    if (firstName.trim()) {
+      errorsCopy.firstName = "";
+    } else {
+      errorsCopy.firstName = "First name is required";
+      valid = false;
+    }
+
+    if (lastName.trim()) {
+      errorsCopy.lastName = "";
+    } else {
+      errorsCopy.lastName = "Last name is required";
+      valid = false;
+    }
+
+    if (email.trim()) {
+      errorsCopy.email = "";
+    } else {
+      errorsCopy.email = "Email is required";
+      valid = false;
+    }
+
+    setErrors(errorsCopy);
+
+    return valid;
+  }
+
+  function pageTitle() {
+    if (id) {
+      return <h2 className="text-center">Update Employee</h2>;
+    } else {
+      return <h2 className="text-center">Add Employee</h2>;
+    }
   }
 
   return (
@@ -30,7 +100,7 @@ const EmployeeComponent = () => {
       <br /> <br />
       <div className="row">
         <div className="card col-md-6 offset-md-3 offset-md-3 ">
-          <h2 className="text-center">Add Employee</h2>
+         {pageTitle()}
           <div className="card-body">
             <form>
               <div className="form-group mb-2">
@@ -42,9 +112,15 @@ const EmployeeComponent = () => {
                   placeholder="Enter Employee First Name"
                   name="firstName"
                   value={firstName}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.firstName ? "is-invalid" : ""
+                  });
+                  }`}
                   onChange={(e) => setFirstName(e.target.value)}
                 />
+                {errors.firstName && (
+                  <div className="text-danger">{errors.firstName}</div>
+                )}
               </div>
               <div className="form-group mb-2">
                 <label htmlFor="lastName" className="form-label">
@@ -55,9 +131,15 @@ const EmployeeComponent = () => {
                   placeholder="Enter Employee Last Name"
                   name="lastName"
                   value={lastName}
-                  className="form-control"
+                  className={`form-control ${
+                    errors.lastName ? "is-invalid" : ""
+                  });
+                  }`}
                   onChange={(e) => setLastName(e.target.value)}
                 />
+                {errors.lastName != "" && (
+                  <div className="text-danger">{errors.lastName}</div>
+                )}
               </div>
               <div className="form-group mb-2">
                 <label htmlFor="email" className="form-label">
@@ -68,11 +150,15 @@ const EmployeeComponent = () => {
                   placeholder="Enter Employee Email"
                   name="email"
                   value={email}
-                  className="form-control"
+                  className={`form-control ${errors.email ? "is-invalid" : ""});
+                  }`}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                {errors.email && (
+                  <div className="text-danger">{errors.email}</div>
+                )}
               </div>
-              <button className="btn btn-success" onClick={saveEmployee}>
+              <button className="btn btn-success" onClick={saveOrUpdateEmployee}>
                 Submit
               </button>
             </form>
