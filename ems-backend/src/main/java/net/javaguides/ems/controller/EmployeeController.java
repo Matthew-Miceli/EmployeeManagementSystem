@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.swing.text.html.parser.Entity;
 import java.util.List;
 
+@CrossOrigin("*")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/employees")
