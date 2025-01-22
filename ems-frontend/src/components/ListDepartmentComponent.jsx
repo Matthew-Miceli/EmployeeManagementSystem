@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { getAllDepartments } from "../services/DepartmentService";
+import { useEffect, useState } from "react";
+import {
+  deleteDepartment,
+  getAllDepartments,
+} from "../services/DepartmentService";
 import { Link, useNavigate } from "react-router-dom";
 
 const ListDepartmentComponent = () => {
@@ -8,6 +11,10 @@ const ListDepartmentComponent = () => {
   const navigator = useNavigate();
 
   useEffect(() => {
+    listAllDepartments();
+  }, []);
+
+  function listAllDepartments() {
     getAllDepartments()
       .then((response) => {
         console.log(response.data);
@@ -16,10 +23,15 @@ const ListDepartmentComponent = () => {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
-
+  }
   function updateDepartment(id) {
     navigator(`/edit-department/${id}`);
+  }
+
+  function removeDepartment(id) {
+    deleteDepartment(id).then(() => {
+      listAllDepartments();
+    });
   }
 
   return (
@@ -49,6 +61,13 @@ const ListDepartmentComponent = () => {
                   onClick={() => updateDepartment(department.id)}
                 >
                   Update
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => removeDepartment(department.id)}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Delete
                 </button>
               </td>
             </tr>

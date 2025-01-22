@@ -1,5 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { createDepartment } from "../services/DepartmentService";
+import { useEffect, useState } from "react";
+import {
+  createDepartment,
+  getDepartmentById,
+  updateDepartment,
+} from "../services/DepartmentService";
 import { useNavigate, useParams } from "react-router-dom";
 
 const DepartmentComponent = () => {
@@ -17,19 +21,33 @@ const DepartmentComponent = () => {
 
     const department = { departmentName, departmentDescription };
 
-    console.log(department);
-
-    createDepartment(department)
-      .then((reponse) => {
-        console.log(Response.data);
-        navigator("/departments");
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    if (id) {
+      updateDepartment(id, department)
+        .then((response) => {
+          console.log(response.data);
+          navigator("/departments");
+        })
+        .catch((error) => console.error(error));
+    } else {
+      createDepartment(department)
+        .then((response) => {
+          console.log(response.data);
+          navigator("/departments");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
   }
 
   useEffect(() => {
+    getDepartmentById(id)
+      .then((response) => {
+        setDepartmentName(response.data.departmentName);
+        setDepartmentDescription(response.data.departmentDescription);
+      })
+      .catch((error) => console.error(error));
+
     if (id) {
       setFormTitle("Update Department");
     } else {

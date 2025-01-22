@@ -1,57 +1,76 @@
 import { useEffect, useState } from "react";
-import { createEmployee, getEmployee, updateEmployee } from "../services/EmployeeService";
+import {
+  createEmployee,
+  getEmployee,
+  updateEmployee,
+} from "../services/EmployeeService";
 import { useNavigate, useParams } from "react-router-dom";
+import { getAllDepartments } from "../services/DepartmentService";
 
 const EmployeeComponent = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [departmentId, setDepartmentId] = useState("");
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    getAllDepartments()
+      .then((response) => {
+        setDepartments(response.data);
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
   const { id } = useParams();
-
   const [errors, setErrors] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    department: "",
   });
 
   const navigator = useNavigate();
 
   useEffect(() => {
-    if(id){
-      getEmployee(id).then((response) => {
-        setFirstName(response.data.firstName)
-        setLastName(response.data.lastName)
-        setEmail(response.data.email)
-
-      }).catch(error => {
-        console.log(error.message)
-      })
+    if (id) {
+      getEmployee(id)
+        .then((response) => {
+          setFirstName(response.data.firstName);
+          setLastName(response.data.lastName);
+          setEmail(response.data.email);
+          setDepartmentId(response.data.departmentId);
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
     }
-
-  }, [id])
+  }, [id]);
 
   function saveOrUpdateEmployee(e) {
     e.preventDefault();
 
     if (validateForm()) {
-      const employee = { firstName, lastName, email };
+      const employee = { firstName, lastName, email, departmentId };
 
-      if(id){
-        updateEmployee(id, employee).then(response => {
-          console.log(response.data);
-          navigator("/employees")
-        }).catch(erro => {
-          console.log(error.message)
-        })
-      }else{
-        createEmployee(employee).then((response) => {
-          console.log(response.data);
-          navigator("/employees");
-        }).catch(error => {
-          console.log(error.message)
-        }
-        )
+      if (id) {
+        updateEmployee(id, employee)
+          .then((response) => {
+            console.log(response.data);
+            navigator("/employees");
+          })
+          .catch((error) => {
+            console.log(error.message);
+          });
+      } else {
+        createEmployee(employee)
+          .then((response) => {
+            console.log(response.data);
+            navigator("/employees");
+          })
+          .catch((error) => {
+            console.log(error.message);
+          });
       }
     }
   }
@@ -82,6 +101,13 @@ const EmployeeComponent = () => {
       valid = false;
     }
 
+    if (departmentId) {
+      errorsCopy.department = "";
+    } else {
+      errorsCopy.department = "Select Department";
+      valid = false;
+    }
+
     setErrors(errorsCopy);
 
     return valid;
@@ -100,7 +126,7 @@ const EmployeeComponent = () => {
       <br /> <br />
       <div className="row">
         <div className="card col-md-6 offset-md-3 offset-md-3 ">
-         {pageTitle()}
+          {pageTitle()}
           <div className="card-body">
             <form>
               <div className="form-group mb-2">
@@ -158,7 +184,32 @@ const EmployeeComponent = () => {
                   <div className="text-danger">{errors.email}</div>
                 )}
               </div>
-              <button className="btn btn-success" onClick={saveOrUpdateEmployee}>
+              <div className="form-group mb-2">
+                <label className="form-label">Select Department:</label>
+                <select
+                  className={`form-control ${
+                    errors.department ? "is-invalid" : ""
+                  });
+                  }`}
+                  value={departmentId}
+                  onChange={(e) => setDepartmentId(e.target.value)}
+                >
+                  <option value="Select Department">Select Department</option>
+                  {departments.map((department) => (
+                    <option key={department.id} value={department.id}>
+                      {department.departmentName}
+                    </option>
+                  ))}
+                </select>
+                {errors.department && (
+                  <div className="text-danger">{errors.department}</div>
+                )}
+              </div>
+
+              <button
+                className="btn btn-success"
+                onClick={saveOrUpdateEmployee}
+              >
                 Submit
               </button>
             </form>
