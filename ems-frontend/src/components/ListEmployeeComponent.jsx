@@ -2,22 +2,30 @@ import { useEffect, useState } from "react";
 import { listEmployees } from "../services/EmployeeService";
 import { useNavigate } from "react-router-dom";
 import DeleteComponent from "./DeleteComponent";
+import { getDepartmentById } from "../services/DepartmentService";
 
 const ListEmployeeComponent = () => {
   const [employees, setEmployees] = useState([]);
-
   const navigator = useNavigate();
 
   useEffect(() => {
     listEmployees()
-      .then((response) => {
-        setEmployees(response.data);
+      .then(async (response) => {
+        const employeesWithDepartment = await Promise.all(
+          response.data.map(async (employee) => {
+            const department = await getDepartmentById(employee.departmentId);
+            return {
+              ...employee,
+              departmentName: department.data.departmentName,
+            };
+          })
+        );
+        setEmployees(employeesWithDepartment);
       })
       .catch((error) => console.log(error.message));
   }, []);
 
   const handleDelete = (id) => {
-    // Update the employees state by filtering out the deleted employee
     setEmployees((prevEmployees) =>
       prevEmployees.filter((employee) => employee.id !== id)
     );
@@ -27,8 +35,8 @@ const ListEmployeeComponent = () => {
     navigator("/add-employee");
   }
 
-  function updateEmployee(id){
-    navigator(`/edit-employee/${id}`)
+  function updateEmployee(id) {
+    navigator(`/edit-employee/${id}`);
   }
 
   return (
@@ -48,6 +56,7 @@ const ListEmployeeComponent = () => {
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email Id</th>
+            <th>Department</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -58,8 +67,14 @@ const ListEmployeeComponent = () => {
               <td>{employee.firstName}</td>
               <td>{employee.lastName}</td>
               <td>{employee.email}</td>
+              <td>{employee.departmentName}</td>
               <td>
-                <button className="btn btn-info" onClick={() => updateEmployee(employee.id)}>Update</button>
+                <button
+                  className="btn btn-info"
+                  onClick={() => updateEmployee(employee.id)}
+                >
+                  Update
+                </button>
                 <DeleteComponent id={employee.id} onDelete={handleDelete} />
               </td>
             </tr>

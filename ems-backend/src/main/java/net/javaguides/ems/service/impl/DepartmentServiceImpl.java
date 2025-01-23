@@ -58,6 +58,5 @@ public class DepartmentServiceImpl implements DepartmentService {
                new ResourceNotFoundException("Department with given id cannot be found"));
        departmentRepository.delete(department);
     }
-
-
+    
 }
